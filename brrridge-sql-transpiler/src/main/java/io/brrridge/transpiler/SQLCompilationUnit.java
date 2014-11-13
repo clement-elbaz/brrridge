@@ -3,6 +3,8 @@ package io.brrridge.transpiler;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.brrridge.transpiler.exception.InvalidInputToUnitException;
 import io.brrridge.transpiler.exception.UnitCompilationFailedException;
 
@@ -46,15 +48,20 @@ public class SQLCompilationUnit extends BaseCompilationUnit {
 		switch(currentChar) {
 		case '\'':
 		case '"':
-			new TextCompilationUnit(this.getRequestInput()).compileUnit();
+			String text = new TextCompilationUnit(this.getRequestInput()).compileUnit();
+			this.pushToOutput(text);
 			break;
 		case '{':
 			if("{{".equals(this.getRequestInput().substring(0, 2))) {
-				new OptionalCompilationUnit(this.getRequestInput(), this.parametersInput, this.parametersOutput).compileUnit();
+				String optionalStatement = new OptionalCompilationUnit(this.getRequestInput(), this.parametersInput, this.parametersOutput).compileUnit();
+				if(StringUtils.isNotBlank(optionalStatement)) {
+					this.pushToOutput(optionalStatement);
+				}
 				break;
 			}
 		case ':':
-			new ParamNameCompilationUnit(this.getRequestInput(), this.parametersInput, this.parametersOutput).compileUnit();
+			String parameter = new ParamNameCompilationUnit(this.getRequestInput(), this.parametersInput, this.parametersOutput).compileUnit();
+			this.pushToOutput(parameter);
 			break;
 		default:
 			this.pushToOutput(String.valueOf(currentChar));

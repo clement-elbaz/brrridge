@@ -1,7 +1,5 @@
 package io.brrridge.transpiler;
 
-import io.brrridge.transpiler.SQLTranspiler;
-import io.brrridge.transpiler.TranspilationResult;
 import io.brrridge.transpiler.exception.SQLTranspilationFailedException;
 
 import java.util.ArrayList;
@@ -14,10 +12,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 
 public class SQLTranspilerTest { 
 
@@ -40,11 +36,12 @@ public class SQLTranspilerTest {
 			try {
 				Assert.assertEquals(testCase.result, transpiler.transpile(testCase.request, testCase.parameters));
 				if(testCase.shouldFail) {
-					Assert.fail();
+					Assert.fail(testCase.toString() + " should have failed and should have not.");
 				}
 			} catch (SQLTranspilationFailedException e) {
 				if(!testCase.shouldFail) {
-					Assert.fail();
+					e.printStackTrace();
+					Assert.fail(testCase.toString() + " have failed and should have not : "+e.toString());
 				}
 			}
 		}
@@ -54,7 +51,7 @@ public class SQLTranspilerTest {
 		List<TranspilationTestCase> result = new ArrayList<TranspilationTestCase>();
 		
 		TranspilationTestCase testCase1 = new TranspilationTestCase();
-		testCase1.request = "SELECT * from foo WHERE foo.bar IN (:someParam) AND foo.bidoo = :someOtherParam {{AND foo.shui = :anOptionalParam}}";
+		testCase1.request = "SELECT * from foo WHERE foo.bar IN (:someParam) AND foo.bidoo = :someOtherParam{{ AND foo.shui = :anOptionalParam}}";
 		testCase1.parameters.put("someParam", Arrays.asList("yoo", "pi"));
 		testCase1.parameters.put("someOtherParam", Arrays.asList("woo"));
 		testCase1.result = new TranspilationResult("SELECT * from foo WHERE foo.bar IN (?, ?) AND foo.bidoo = ?", Arrays.asList("yoo", "pi", "woo"));
@@ -68,7 +65,7 @@ public class SQLTranspilerTest {
 		testCase2.parameters.put("someParam", Arrays.asList("yoo", "pi"));
 		testCase2.parameters.put("someOtherParam", Arrays.asList("woo"));
 		testCase2.parameters.put("anOptionalParam", Arrays.asList("yahou"));
-		testCase2.result = new TranspilationResult("SELECT * from foo WHERE foo.bar IN (?, ?) AND foo.bidoo = ?", Arrays.asList("yoo", "pi", "woo"));
+		testCase2.result = new TranspilationResult("SELECT * from foo WHERE foo.bar IN (?, ?) AND foo.bidoo = ? AND foo.shui = ?", Arrays.asList("yoo", "pi", "woo", "yahou"));
 		testCase2.shouldFail = false;
 		result.add(testCase2);
 		

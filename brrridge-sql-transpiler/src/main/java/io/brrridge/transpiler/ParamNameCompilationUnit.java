@@ -58,9 +58,11 @@ public class ParamNameCompilationUnit extends BaseCompilationUnit {
 			this.moveCompilationCursorUp();
 		} else if(StringUtils.isAlphanumeric(currentChar)) {
 			this.parameterNameBuffer.append(currentChar);
+			this.moveCompilationCursorUp();
 		} else {
 			this.endParameterCompilation();
 		}
+		
 
 		this.began = false;
 	}
@@ -100,6 +102,7 @@ public class ParamNameCompilationUnit extends BaseCompilationUnit {
 		}
 		
 		this.pushToOutput(StringUtils.join(paramSlots, ", "));
+		this.itsDone();
 	}
 
 }
